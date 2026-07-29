@@ -191,5 +191,75 @@ ${user?._id && user._id !== myUserId ? `
       new bootstrap.Modal(document.getElementById('reviewsListModal')).show();
     }
   </script>
+  <script> function openReviewModal(userId) {
+  document.getElementById('reviewUserId').value = userId;
+  document.getElementById('rating').value = '';
+  document.getElementById('comment').value = '';
+  new bootstrap.Modal(document.getElementById('giveReviewModal')).show();
+}
+
+document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const userId = document.getElementById('reviewUserId').value;
+  const rating = parseInt(document.getElementById('rating').value);
+  const comment = document.getElementById('comment').value;
+
+  try {
+    const res = await fetch(`http://localhost:5000/reviews/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ rating, comment })
+    });
+
+    if (res.ok) {
+      alert('Review submitted successfully!');
+      bootstrap.Modal.getInstance(document.getElementById('giveReviewModal')).hide();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + err.message);
+    }
+  } catch (error) {
+    alert('Failed to submit review.');
+  }
+});</script>
+
+  <!-- Give Review Modal -->
+<div class="modal fade" id="giveReviewModal" tabindex="-1" aria-labelledby="giveReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="reviewForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="giveReviewModalLabel">Give Rating & Review</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="reviewUserId">
+          <div class="mb-3">
+            <label for="rating" class="form-label">Rating (1-5)</label>
+            <select class="form-select" id="rating" required>
+              <option value="">Select rating</option>
+              <option value="1">1 - ★☆☆☆☆</option>
+              <option value="2">2 - ★★☆☆☆</option>
+              <option value="3">3 - ★★★☆☆</option>
+              <option value="4">4 - ★★★★☆</option>
+              <option value="5">5 - ★★★★★</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea class="form-control" id="comment" rows="3" placeholder="Write your review here..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
